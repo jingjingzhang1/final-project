@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Posting Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <header>
+                <h1>Job-posting Platform For College Students</h1>
+            </header>
+            <nav>
+                <button class="btn" onclick="navigateTo('main')">Home</button>
+                <button class="btn" onclick="navigateTo('myPosts')">My Posts</button>
+                <button class="btn" onclick="navigateTo('savedPosts')">Saved Posts</button>
+                <button class="btn sort" onclick="toggleSort()">Sort by ▼</button>
+                <div class="filters hidden">
+                    <label><input type="radio" name="sort" value="Position" onclick="sortPosts('position')"> Position</label>
+                    <label><input type="radio" name="sort" value="Company" onclick="sortPosts('company')"> Company</label>
+                    <label><input type="radio" name="sort" value="Location" onclick="sortPosts('location')"> Location</label>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Return Arrow -->
+            <div id="returnArrow" class="hidden" onclick="navigateTo('main')">
+                ← Back
+            </div>
+
+            <!-- Posts -->
+            <div id="posts" class="posts">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
