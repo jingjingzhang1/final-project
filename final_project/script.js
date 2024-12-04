@@ -26,14 +26,17 @@ const jobData = [
     }
 ];
 
+// User Posts
+let userPosts = [];
+
 // Current View State
 let currentPage = "main";
 
-// Render Job Posts
-function renderPosts() {
-    const postsContainer = document.getElementById("posts");
+// Render Dynamic Content
+function renderContent() {
+    const content = document.getElementById("content");
     const returnArrow = document.getElementById("returnArrow");
-    postsContainer.innerHTML = ""; // Clear previous content
+    content.innerHTML = ""; // Clear previous content
 
     // Toggle Return Arrow Visibility
     if (currentPage === "main") {
@@ -42,59 +45,138 @@ function renderPosts() {
         returnArrow.classList.remove("hidden");
     }
 
-    let filteredData = jobData;
-    if (currentPage === "savedPosts") {
-        filteredData = jobData.filter(job => job.saved);
+    if (currentPage === "main") {
+        renderPosts(jobData);
+    } else if (currentPage === "savedPosts") {
+        renderPosts(jobData.filter(job => job.saved));
     } else if (currentPage === "myPosts") {
-        // Example logic for "My Posts" (if there are specific user-created posts)
-        filteredData = []; // Replace with actual logic if needed
+        renderUserPosts();
+    } else if (currentPage === "newPost") {
+        renderNewPostForm();
     }
+}
 
-    if (filteredData.length === 0) {
-        postsContainer.innerHTML = "<p>No posts available.</p>";
+// Render Job Posts
+function renderPosts(posts) {
+    const content = document.getElementById("content");
+
+    if (posts.length === 0) {
+        content.innerHTML = "<p>No posts available.</p>";
         return;
     }
 
-    filteredData.forEach((job, index) => {
-        const jobCard = document.createElement("div");
-        jobCard.className = "card";
-        jobCard.innerHTML = `
-            <h2>${job.position}</h2>
-            <p><strong>Company:</strong> ${job.company}</p>
-            <p><strong>Location:</strong> ${job.location}</p>
-            <p><strong>Description:</strong> ${job.description}</p>
-            <p><strong>Requirements:</strong> ${job.requirements.join(", ")}</p>
-            <p><a href="${job.link}" target="_blank">Official Website</a></p>
-            <button class="save-btn ${job.saved ? "saved" : ""}" onclick="toggleSave(${index})">
-                ${job.saved ? "⭐ Saved" : "☆ Save"}
-            </button>
+    const postsContainer = document.createElement("div");
+    postsContainer.className = "posts";
+
+    posts.forEach((post, index) => {
+        const postCard = document.createElement("div");
+        postCard.className = "card";
+        postCard.innerHTML = `
+            <h2>${post.position}</h2>
+            <p><strong>Company:</strong> ${post.company}</p>
+            <p><strong>Location:</strong> ${post.location}</p>
+            <p><strong>Description:</strong> ${post.description}</p>
+            <p><strong>Requirements:</strong> ${post.requirements.join(", ")}</p>
+            <p><a href="${post.link}" target="_blank">Official Website</a></p>
         `;
-        postsContainer.appendChild(jobCard);
+        postsContainer.appendChild(postCard);
+        
     });
+
+    content.appendChild(postsContainer);
 }
 
-// Save Post
-function toggleSave(index) {
-    jobData[index].saved = !jobData[index].saved;
-    renderPosts();
+// Render User Posts
+function renderUserPosts() {
+    const content = document.getElementById("content");
+
+    if (userPosts.length === 0) {
+        content.innerHTML = "<p>No posts available.</p>";
+    } else {
+        const postsContainer = document.createElement("div");
+        postsContainer.className = "posts";
+
+        userPosts.forEach((post, index) => {
+            const postCard = document.createElement("div");
+            postCard.className = "card";
+            postCard.innerHTML = `
+                <h2>${post.title}</h2>
+                <p>${post.content}</p>
+                <button onclick="deletePost(${index})">Delete</button>
+            `;
+            postsContainer.appendChild(postCard);
+        });
+
+        content.appendChild(postsContainer);
+    }
+
+    // Add "Post" button
+    const postButton = document.createElement("button");
+    postButton.textContent = "Post New";
+    postButton.className = "btn";
+    postButton.onclick = () => navigateTo("newPost");
+    content.appendChild(postButton);
+}
+
+// Toggle Sort Filters
+function toggleSort() {
+    const filters = document.querySelector(".filters");
+    const sortButton = document.querySelector(".sort");
+
+    if (filters.classList.contains("hidden")) {
+        filters.classList.remove("hidden"); // Show the filters
+        sortButton.textContent = "Sort by ▲"; // Change triangle to ▲
+    } else {
+        filters.classList.add("hidden"); // Hide the filters
+        sortButton.textContent = "Sort by ▼"; // Change triangle to ▼
+    }
+}
+
+
+// Render New Post Form
+function renderNewPostForm() {
+    const content = document.getElementById("content");
+
+    const formContainer = document.createElement("div");
+    formContainer.className = "form-container";
+
+    formContainer.innerHTML = `
+        <label for="postTitle">Title:</label>
+        <input type="text" id="postTitle" placeholder="Enter post title">
+
+        <label for="postContent">Content:</label>
+        <textarea id="postContent" rows="4" placeholder="Enter post content"></textarea>
+
+        <button onclick="addNewPost()">Post</button>
+    `;
+
+    content.appendChild(formContainer);
+}
+
+// Add New Post
+function addNewPost() {
+    const title = document.getElementById("postTitle").value;
+    const content = document.getElementById("postContent").value;
+
+    if (title && content) {
+        userPosts.push({ title, content });
+        navigateTo("myPosts");
+    } else {
+        alert("Please fill in both fields!");
+    }
+}
+
+// Delete Post
+function deletePost(index) {
+    userPosts.splice(index, 1);
+    renderUserPosts();
 }
 
 // Navigate Between Pages
 function navigateTo(page) {
     currentPage = page;
-    renderPosts();
-}
-
-// Sort Posts
-function sortPosts(criteria) {
-    jobData.sort((a, b) => (a[criteria].localeCompare(b[criteria])));
-    renderPosts();
-}
-
-// Toggle Sort Dropdown
-function toggleSort() {
-    document.querySelector(".filters").classList.toggle("hidden");
+    renderContent();
 }
 
 // Initial Render
-renderPosts();
+renderContent();
